@@ -1,0 +1,41 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# PyInstaller / packaging
+build/
+dist/
+*.spec.tmp
+
+# Test / tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# IDE / editors
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS
+desktop.ini
+Thumbs.db
+.DS_Store
+
+# Local secrets (never commit)
+.env
+.env.*
+*.local
+
+# Logs
+*.log
