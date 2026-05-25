@@ -1,4 +1,4 @@
-![Static Badge](https://img.shields.io/badge/Powered_by-Python-yellow)
+![Static Badge](https://img.shields.io/badge/Powered_by-Python-yellow)  ![Static Badge](https://img.shields.io/badge/Powered_by-Pillow-orange)
 
 # Мастер сжатия изображений
 
