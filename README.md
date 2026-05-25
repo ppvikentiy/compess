@@ -1,3 +1,5 @@
+![Static Badge](https://img.shields.io/badge/Powered_by-Python-yellow)
+
 # Мастер сжатия изображений
 
 **English:** [README-EN.md](README-EN.md)
