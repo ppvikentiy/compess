@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import os
+import platform
 import sys
 import threading
+import webbrowser
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog
@@ -39,6 +41,13 @@ except ImportError:
     _HAS_DND = False
 
 APP_TITLE = "Сжатие изображений (локально)"
+APP_NAME_RU = "Мастер сжатия изображений"
+APP_VERSION = "1.0.0"
+APP_DESCRIPTION = (
+    "Локальное пошаговое приложение для Windows: уменьшение размера и разрешения "
+    "одного статичного изображения и сохранение в нужном формате. Интернет не нужен."
+)
+REPOSITORY_URL = "https://github.com/ppvikentiy/compess"
 
 FINAL_PREVIEW_LONG_EDGE = 1400
 
@@ -117,6 +126,16 @@ class CompressWizardApp:
         main = ttk.Frame(self.root, padding=14)
         main.pack(fill=tk.BOTH, expand=True)
 
+        top_bar = ttk.Frame(main)
+        top_bar.pack(fill=tk.X, anchor=tk.NE, pady=(0, 4))
+        ttk.Button(top_bar, text="О Программе", command=self._show_about_program).pack(
+            side=tk.RIGHT,
+            padx=(6, 0),
+        )
+        ttk.Button(top_bar, text="О Разработчике", command=self._show_about_developer).pack(
+            side=tk.RIGHT,
+        )
+
         self.step_title = ttk.Label(
             main,
             text="",
@@ -161,6 +180,96 @@ class CompressWizardApp:
         self._build_step_preview(self.f5)
 
         self._lift_step(1)
+
+    def _component_status_lines(self) -> list[str]:
+        lines = [f"Python {platform.python_version()} ({platform.system()})"]
+        try:
+            tk_patch = str(self.root.tk.call("info", "patchlevel"))
+        except Exception:
+            tk_patch = "?"
+        lines.append(f"Tkinter · Tcl/Tk: доступен (patchlevel {tk_patch})")
+        try:
+            from PIL import __version__ as pil_ver  # type: ignore[import-untyped]
+
+            lines.append(f"Pillow (PIL): {pil_ver}")
+        except Exception:
+            lines.append("Pillow (PIL): недоступен")
+        lines.append(
+            "tkinterdnd2 (drag-and-drop): "
+            + ("установлен" if _HAS_DND else "не установлен — только «Открыть файл»")
+        )
+        return lines
+
+    def _show_about_program(self) -> None:
+        dlg = tk.Toplevel(self.root)
+        dlg.title("О Программе")
+        dlg.transient(self.root)
+
+        outer = ttk.Frame(dlg, padding=16)
+        outer.pack(fill=tk.BOTH, expand=True)
+
+        body = (
+            "Название\n"
+            f"{APP_NAME_RU}\n\n"
+            "Версия\n"
+            f"{APP_VERSION}\n\n"
+            "Описание\n"
+            f"{APP_DESCRIPTION}\n\n"
+            "Статус компонентов и наличие библиотек\n"
+            + "\n".join(f"• {ln}" for ln in self._component_status_lines())
+        )
+        txt = tk.Text(
+            outer,
+            wrap=tk.WORD,
+            width=62,
+            height=18,
+            bd=8,
+            relief=tk.FLAT,
+        )
+        txt.pack(fill=tk.BOTH, expand=True)
+        txt.insert(tk.END, body)
+        txt.configure(state="disabled")
+
+        btns = ttk.Frame(outer)
+        btns.pack(pady=(12, 0))
+        ttk.Button(btns, text="Закрыть", command=dlg.destroy).pack()
+
+    def _show_about_developer(self) -> None:
+        dlg = tk.Toplevel(self.root)
+        dlg.title("О Разработчике")
+        dlg.transient(self.root)
+
+        outer = ttk.Frame(dlg, padding=16)
+        outer.pack(fill=tk.BOTH, expand=True)
+
+        row = ttk.Frame(outer)
+        row.pack(anchor=tk.CENTER, pady=(0, 8))
+        ttk.Label(row, text="Powered by").pack(side=tk.LEFT)
+
+        link_lbl = tk.Label(
+            row,
+            text=REPOSITORY_URL,
+            fg="#0066cc",
+            cursor="hand2",
+            font=("Segoe UI", 10, "underline"),
+        )
+        link_lbl.pack(side=tk.LEFT, padx=(6, 0))
+
+        def open_repo(_evt: object = None) -> None:
+            webbrowser.open(REPOSITORY_URL)
+
+        link_lbl.bind("<Button-1>", open_repo)
+
+        ttk.Label(outer, text="Лицензия MIT", justify=tk.CENTER).pack(pady=(4, 0))
+        ttk.Label(outer, text="Свободное распространение.", justify=tk.CENTER).pack(
+            pady=(4, 0),
+        )
+        ttk.Label(outer, text="2026", justify=tk.CENTER).pack(pady=(4, 0))
+
+        ttk.Button(outer, text="Закрыть", command=dlg.destroy).pack(
+            anchor=tk.CENTER,
+            pady=(16, 0),
+        )
 
     def _output_fmt(self) -> ip.OutputFormat:
         v = self._output_format_var.get()
